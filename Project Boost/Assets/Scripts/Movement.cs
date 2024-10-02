@@ -40,13 +40,28 @@ public class Movement : MonoBehaviour
 
     void ProcessRotation()
     {
+        //float rotationThisFrame = rotationSpeed * Time.deltaTime;
+
+        //if (Input.GetKey(KeyCode.LeftArrow))
+        //{
+        //    ApplyRotation();
+        //}
+        //else if (Input.GetKey(KeyCode.RightArrow))
+        //{
+        //    ApplyRotation();
+        //}
+        ApplyRotation();
+    }
+
+    private void ApplyRotation()
+    {
         float rotationThisFrame = rotationSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             transform.Rotate(Vector3.forward * rotationThisFrame);
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if(Input.GetKey(KeyCode.RightArrow))
         {
             transform.Rotate(-Vector3.forward * rotationThisFrame);
         }
