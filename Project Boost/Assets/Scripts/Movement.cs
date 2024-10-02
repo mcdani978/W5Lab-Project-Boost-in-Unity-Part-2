@@ -40,22 +40,13 @@ public class Movement : MonoBehaviour
 
     void ProcessRotation()
     {
-        //float rotationThisFrame = rotationSpeed * Time.deltaTime;
-
-        //if (Input.GetKey(KeyCode.LeftArrow))
-        //{
-        //    ApplyRotation();
-        //}
-        //else if (Input.GetKey(KeyCode.RightArrow))
-        //{
-        //    ApplyRotation();
-        //}
         ApplyRotation();
     }
 
     private void ApplyRotation()
     {
         float rotationThisFrame = rotationSpeed * Time.deltaTime;
+        rb.freezeRotation = true; // freezing rotation so we can manually rotate
 
         if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -65,6 +56,8 @@ public class Movement : MonoBehaviour
         {
             transform.Rotate(-Vector3.forward * rotationThisFrame);
         }
+
+        rb.freezeRotation = false; // Unfreezing rotation so the physics system can take over
     }
 
     void ProcessHorizontalMovement()
