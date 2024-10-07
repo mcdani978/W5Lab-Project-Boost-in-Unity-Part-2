@@ -5,7 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
-    [SerializeField] private float transportDistance = 0; // Distance to transport the player
+    [SerializeField] private float transportDistance = 10f; // Distance to transport the player
+    [SerializeField] private AudioSource rocketAudioSource; // AudioSource for the rocket sound
+    [SerializeField] private AudioSource effectsAudioSource; // Separate AudioSource for sound effects
+    [SerializeField] private AudioClip transporterClip; // Sound to play when hitting the transporter
+    [SerializeField] private AudioClip obstacleCollisionClip; // Sound for collisions with obstacles or the ground
 
     void OnCollisionEnter(Collision other)
     {
@@ -22,9 +26,11 @@ public class CollisionHandler : MonoBehaviour
                 break;
             case "Transporter":
                 TransportPlayer();
+                PlayTransporterSound();
                 break;
             default:
                 Debug.Log("Sorry, you blew up!");
+                PlayObstacleCollisionSound();
                 ReloadLevel();
                 break;
         }
@@ -36,6 +42,26 @@ public class CollisionHandler : MonoBehaviour
         Vector3 newPosition = transform.position + new Vector3(transportDistance, 0, 0);
         transform.position = newPosition;
         Debug.Log("Player transported to: " + newPosition);
+    }
+
+    void PlayTransporterSound()
+    {
+        // Play the transporter sound using the effects AudioSource
+        if (effectsAudioSource != null && transporterClip != null)
+        {
+            effectsAudioSource.PlayOneShot(transporterClip);
+            Debug.Log("Transporter sound played");
+        }
+    }
+
+    void PlayObstacleCollisionSound()
+    {
+        // Play the obstacle collision sound using the effects AudioSource
+        if (effectsAudioSource != null && obstacleCollisionClip != null)
+        {
+            effectsAudioSource.PlayOneShot(obstacleCollisionClip);
+            Debug.Log("You hit an obstacle or the ground");
+        }
     }
 
     void LoadNextLevel()
