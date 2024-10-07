@@ -14,12 +14,14 @@ public class Movement : MonoBehaviour
 
     public float fuel = 100f; 
     public float fuelConsumptionRate = 10f; 
-    public TextMeshProUGUI fuelText; 
+    public TextMeshProUGUI fuelText;
+    AudioSource audioSource;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         UpdateFuelText(); 
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -34,7 +36,18 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space) && fuel > 0) 
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
-            ConsumeFuel(); 
+            ConsumeFuel();
+
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+
+        }
+
+        else
+        {
+            audioSource.Stop();
         }
     }
 
