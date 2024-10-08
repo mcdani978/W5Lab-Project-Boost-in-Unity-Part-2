@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class CollisionHandler : MonoBehaviour
 {
@@ -10,6 +10,20 @@ public class CollisionHandler : MonoBehaviour
     [SerializeField] private AudioSource effectsAudioSource; // Separate AudioSource for sound effects
     [SerializeField] private AudioClip transporterClip; // Sound to play when hitting the transporter
     [SerializeField] private AudioClip obstacleCollisionClip; // Sound for collisions with obstacles or the ground
+    [SerializeField] private Image fadeImage; // UI Image for fading transitions
+    [SerializeField] private float fadeDuration = 1f; // Duration of fade
+
+    void Start()
+    {
+        // Ensure the fade image is disabled at the start
+        if (fadeImage != null)
+        {
+            Color fadeColor = fadeImage.color;
+            fadeColor.a = 0f; // Set alpha to 0 (fully transparent)
+            fadeImage.color = fadeColor;
+            fadeImage.enabled = false; // Disable the image at the start
+        }
+    }
 
     void OnCollisionEnter(Collision other)
     {
@@ -19,7 +33,7 @@ public class CollisionHandler : MonoBehaviour
                 Debug.Log("This thing is friendly");
                 break;
             case "Finish":
-                LoadNextLevel();
+                StartCoroutine(HandleSceneTransition());
                 break;
             case "Fuel":
                 Debug.Log("You picked up fuel");
@@ -38,7 +52,6 @@ public class CollisionHandler : MonoBehaviour
 
     void TransportPlayer()
     {
-        // Move the player a certain distance forward on the x-axis
         Vector3 newPosition = transform.position + new Vector3(transportDistance, 0, 0);
         transform.position = newPosition;
         Debug.Log("Player transported to: " + newPosition);
@@ -46,7 +59,6 @@ public class CollisionHandler : MonoBehaviour
 
     void PlayTransporterSound()
     {
-        // Play the transporter sound using the effects AudioSource
         if (effectsAudioSource != null && transporterClip != null)
         {
             effectsAudioSource.PlayOneShot(transporterClip);
@@ -56,11 +68,56 @@ public class CollisionHandler : MonoBehaviour
 
     void PlayObstacleCollisionSound()
     {
-        // Play the obstacle collision sound using the effects AudioSource
         if (effectsAudioSource != null && obstacleCollisionClip != null)
         {
             effectsAudioSource.PlayOneShot(obstacleCollisionClip);
             Debug.Log("You hit an obstacle or the ground");
+        }
+    }
+
+    // Coroutine to handle scene transition with fade effect
+    IEnumerator HandleSceneTransition()
+    {
+        if (fadeImage != null)
+        {
+            fadeImage.enabled = true; // Enable the fade image only during transition
+        }
+
+        yield return StartCoroutine(FadeOut()); // Fade out before loading the next scene
+        LoadNextLevel(); // Load the next scene
+        yield return StartCoroutine(FadeIn()); // Fade in after the new scene is loaded
+
+        if (fadeImage != null)
+        {
+            fadeImage.enabled = false; // Disable the fade image after the transition
+        }
+    }
+
+    IEnumerator FadeOut()
+    {
+        float elapsedTime = 0f;
+        Color fadeColor = fadeImage.color;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            fadeColor.a = Mathf.Clamp01(elapsedTime / fadeDuration);
+            fadeImage.color = fadeColor;
+            yield return null;
+        }
+    }
+
+    IEnumerator FadeIn()
+    {
+        float elapsedTime = 0f;
+        Color fadeColor = fadeImage.color;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            fadeColor.a = Mathf.Clamp01(1f - (elapsedTime / fadeDuration));
+            fadeImage.color = fadeColor;
+            yield return null;
         }
     }
 
@@ -74,7 +131,7 @@ public class CollisionHandler : MonoBehaviour
             nextSceneIndex = 0; // Loop back to the first scene
         }
 
-        SceneManager.LoadScene(nextSceneIndex); // Load the next scene
+        SceneManager.LoadScene(nextSceneIndex);
     }
 
     void ReloadLevel()
@@ -83,3 +140,4 @@ public class CollisionHandler : MonoBehaviour
         SceneManager.LoadScene(currentSceneIndex);
     }
 }
+
